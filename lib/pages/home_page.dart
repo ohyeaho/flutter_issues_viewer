@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_issues_viewer/models/github_api.dart';
+import 'package:flutter_issues_viewer/values/string.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -10,13 +11,13 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
-  static const List<Tab> labels = <Tab>[
-    Tab(text: '全て'),
-    Tab(text: 'p: web view'),
-    Tab(text: 'p: shared_preferences'),
-    Tab(text: 'waiting for customer response'),
-    Tab(text: 'severe: new feature'),
-    Tab(text: 'p: share'),
+  static List<Tab> labels = <Tab>[
+    Tab(text: S().labelAll),
+    Tab(text: S().labelWebView),
+    Tab(text: S().labelSharedPreferences),
+    Tab(text: S().labelWaitingCustomer),
+    Tab(text: S().labelSevere),
+    Tab(text: S().labelShare),
   ];
 
   late TabController _tabController;
@@ -37,7 +38,12 @@ class _HomePageState extends State<HomePage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Flutter Issues Viewer'),
+        backgroundColor: Colors.grey[50],
+        elevation: 0,
+        title: const Text(
+          'Flutter Issues Viewer',
+          style: TextStyle(color: Colors.black),
+        ),
         automaticallyImplyLeading: false,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(40),
@@ -50,14 +56,17 @@ class _HomePageState extends State<HomePage>
 
   /// タブ内容
   Widget _tabBody() {
-    return TabBarView(
-      controller: _tabController,
-      children: labels.map((Tab tab) {
-        final String label = tab.text!.toLowerCase();
-        return ListView.builder(itemBuilder: (context, index) {
-          return _buildCard(label);
-        });
-      }).toList(),
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+      child: TabBarView(
+        controller: _tabController,
+        children: labels.map((Tab tab) {
+          final String label = tab.text!.toLowerCase();
+          return ListView.builder(itemBuilder: (context, index) {
+            return _buildCard(label);
+          });
+        }).toList(),
+      ),
     );
   }
 
@@ -168,6 +177,8 @@ class _HomePageState extends State<HomePage>
           child: TabBar(
             controller: _tabController,
             tabs: labels,
+            labelColor: Colors.black,
+            indicatorColor: Colors.blue,
             isScrollable: true,
           ),
         ),
