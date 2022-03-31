@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_issues_viewer/models/github_api.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -54,16 +55,97 @@ class _HomePageState extends State<HomePage>
       children: labels.map((Tab tab) {
         final String label = tab.text!.toLowerCase();
         return ListView.builder(itemBuilder: (context, index) {
-          return Center(
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(label),
-              ),
-            ),
-          );
+          return _buildCard(label);
         });
       }).toList(),
+    );
+  }
+
+  /// issues内容表示
+  Widget _buildCard(String label) {
+    final flutterIssues = GithubApi(
+      number: 54063,
+      commentCount: 2,
+      title: 'stable',
+      description:
+          'Command flutter run --machine --start-paused -d gubexwivz5e6eyt8 --dart-define=flutter',
+      dateTime: DateTime(2020, 4, 6),
+    );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: SizedBox(
+            height: 150,
+            child: Column(
+              children: [
+                Expanded(
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Text('No. ${flutterIssues.number}'),
+                            const SizedBox(width: 20),
+                            Row(
+                              children: [
+                                const Icon(Icons.comment),
+                                Text(flutterIssues.commentCount.toString()),
+                              ],
+                            )
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.info_outline,
+                              color: Colors.green,
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              flutterIssues.title,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    color: Colors.blue.withOpacity(0.2),
+                    child: Center(child: Text(flutterIssues.description)),
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text(
+                            '${flutterIssues.dateTime!.year}年${flutterIssues.dateTime!.month}月${flutterIssues.dateTime!.day}日'),
+                      ),
+                      OutlinedButton(
+                        onPressed: () {},
+                        child: const Text('View full issue'),
+                        style: OutlinedButton.styleFrom(primary: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -105,14 +187,14 @@ class _HomePageState extends State<HomePage>
         onPressed: () {
           showDialog<String>(
               context: context,
-              builder: (BuildContext context) => alertDialog(context));
+              builder: (BuildContext context) => _alertDialog(context));
         },
         icon: const Icon(Icons.filter_list),
       ),
     );
   }
 
-  AlertDialog alertDialog(BuildContext context) {
+  Widget _alertDialog(BuildContext context) {
     return AlertDialog(
       content: SingleChildScrollView(
         child: ListBody(
@@ -145,10 +227,6 @@ class _HomePageState extends State<HomePage>
               ),
             ),
           ),
-          // child: TextButton(
-          //   onPressed: () => Navigator.pop(context, 'OK'),
-          //   child: const Text('OK'),
-          // ),
         ),
       ],
     );
