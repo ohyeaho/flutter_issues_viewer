@@ -12,7 +12,7 @@ class S implements _String {
   String get labelAll => '全て';
 
   @override
-  String get labelWebView => 'p: web view';
+  String get labelWebView => 'p: webview';
 
   @override
   String get labelSharedPreferences => 'p: shared_preferences';
