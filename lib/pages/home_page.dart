@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_issues_viewer/models/github_api.dart';
 import 'package:flutter_issues_viewer/values/string.dart';
+import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -9,8 +10,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   static List<Tab> labels = <Tab>[
     Tab(text: S().labelAll),
     Tab(text: S().labelWebView),
@@ -19,6 +19,8 @@ class _HomePageState extends State<HomePage>
     Tab(text: S().labelSevere),
     Tab(text: S().labelShare),
   ];
+
+  List<GithubData>? flutterIssues;
 
   late TabController _tabController;
 
@@ -56,104 +58,152 @@ class _HomePageState extends State<HomePage>
 
   /// タブ内容
   Widget _tabBody() {
+    // return ElevatedButton(
+    //     onPressed: () async {
+    //       await GithubApi().getGithubApi();
+    //     },
+    //     child: Text('test'));
+
     return Padding(
       padding: const EdgeInsets.only(top: 8.0),
       child: TabBarView(
         controller: _tabController,
-        children: labels.map((Tab tab) {
-          final String label = tab.text!.toLowerCase();
-          return ListView.builder(itemBuilder: (context, index) {
-            return _buildCard(label);
-          });
-        }).toList(),
-      ),
-    );
-  }
+        children: [
+          FutureBuilder(
+              future: GithubApi().getGithubApi(),
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  flutterIssues = snapshot.data;
+                  return ListView.builder(
+                      itemCount: flutterIssues!.length,
+                      itemBuilder: (context, index) {
+                        //DateTime型変換
+                        final formatter = DateFormat('yyyy年MM月dd日 HH:mm');
+                        final formatted = formatter.format(flutterIssues![index].createdAt);
 
-  /// issues内容表示
-  Widget _buildCard(String label) {
-    final flutterIssues = GithubApi(
-      number: 54063,
-      commentCount: 2,
-      title: 'stable',
-      description:
-          'Command flutter run --machine --start-paused -d gubexwivz5e6eyt8 --dart-define=flutter',
-      dateTime: DateTime(2020, 4, 6),
-    );
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: SizedBox(
-            height: 150,
-            child: Column(
-              children: [
-                Expanded(
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: Row(
-                          children: [
-                            Text('No. ${flutterIssues.number}'),
-                            const SizedBox(width: 20),
-                            Row(
-                              children: [
-                                const Icon(Icons.comment),
-                                Text(flutterIssues.commentCount.toString()),
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.info_outline,
-                              color: Colors.green,
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+                          child: Card(
+                            elevation: 3,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: SizedBox(
+                                height: 200,
+                                child: Column(
+                                  children: [
+                                    Expanded(
+                                      flex: 3,
+                                      child: Column(
+                                        children: [
+                                          Expanded(
+                                            flex: 1,
+                                            child: Row(
+                                              children: [
+                                                Text('No. ${flutterIssues![index].number}'),
+                                                const SizedBox(width: 20),
+                                                Row(
+                                                  children: [
+                                                    const Icon(Icons.comment),
+                                                    Text(flutterIssues![index].commentCount.toString()),
+                                                  ],
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                          Expanded(
+                                            flex: 5,
+                                            child: Padding(
+                                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                              child: Row(
+                                                children: [
+                                                  const Icon(
+                                                    Icons.info_outline,
+                                                    color: Colors.green,
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Expanded(
+                                                    child: Text(
+                                                      flutterIssues![index].title,
+                                                      style: const TextStyle(fontWeight: FontWeight.bold),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 3,
+                                      child: Container(
+                                        width: double.infinity,
+                                        color: Colors.blue.withOpacity(0.2),
+                                        child: Text(flutterIssues![index].description ?? 'no description'),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 2,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(5.0),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Column(
+                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  '作成日時: $formatted',
+                                                  // '${flutterIssues![index].createdAt.year}年${flutterIssues![index].createdAt.month}月${flutterIssues![index].createdAt.day}日 ${flutterIssues![index].createdAt.hour}:${flutterIssues![index].createdAt.minute}',
+                                                  // '作成日時: ${flutterIssues![index].createdAt}',
+                                                  style: const TextStyle(fontSize: 12),
+                                                ),
+                                                Text(
+                                                  '更新日時: $formatted',
+                                                  style: const TextStyle(fontSize: 12),
+                                                ),
+                                              ],
+                                            ),
+                                            OutlinedButton(
+                                              onPressed: () {},
+                                              child: const Text('View full issue'),
+                                              style: OutlinedButton.styleFrom(primary: Colors.grey),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                            const SizedBox(width: 10),
-                            Text(
-                              flutterIssues.title,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    color: Colors.blue.withOpacity(0.2),
-                    child: Center(child: Text(flutterIssues.description)),
-                  ),
-                ),
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text(
-                            '${flutterIssues.dateTime!.year}年${flutterIssues.dateTime!.month}月${flutterIssues.dateTime!.day}日'),
-                      ),
-                      OutlinedButton(
-                        onPressed: () {},
-                        child: const Text('View full issue'),
-                        style: OutlinedButton.styleFrom(primary: Colors.grey),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+                          ),
+                        );
+                      });
+                } else {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+              }),
+          ListView.builder(itemBuilder: (context, index) {
+            return Text('test');
+          }),
+          ListView.builder(itemBuilder: (context, index) {
+            return Text('test');
+          }),
+          ListView.builder(itemBuilder: (context, index) {
+            return Text('test');
+          }),
+          ListView.builder(itemBuilder: (context, index) {
+            return Text('test');
+          }),
+          ListView.builder(itemBuilder: (context, index) {
+            return Text('test');
+          }),
+        ],
       ),
     );
   }
@@ -196,9 +246,7 @@ class _HomePageState extends State<HomePage>
       alignment: Alignment.centerRight,
       child: IconButton(
         onPressed: () {
-          showDialog<String>(
-              context: context,
-              builder: (BuildContext context) => _alertDialog(context));
+          showDialog<String>(context: context, builder: (BuildContext context) => _alertDialog(context));
         },
         icon: const Icon(Icons.filter_list),
       ),
