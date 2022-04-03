@@ -8,13 +8,15 @@ class GithubData {
   final String title;
   final String? description;
   final DateTime createdAt;
+  final DateTime updatedAt;
 
   GithubData.fromJson(Map<String, dynamic> json)
       : number = json['number'],
         commentCount = json['comments'],
         title = json['title'],
         description = json['body'],
-        createdAt = DateTime.parse(json['created_at']);
+        createdAt = DateTime.parse(json['created_at']),
+        updatedAt = DateTime.parse(json['updated_at']);
 }
 
 class GithubApi {
@@ -30,12 +32,11 @@ class GithubApi {
         }
         return issuesList;
       } else {
-        print('error');
-        return null;
+        throw Exception('アクセスエラー エラーコード: ${result.statusCode} エラー内容: ${result.reasonPhrase}');
       }
     } catch (e) {
       print('error: $e');
-      return null;
+      rethrow;
     }
   }
 }

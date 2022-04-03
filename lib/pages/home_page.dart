@@ -79,7 +79,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       itemBuilder: (context, index) {
                         //DateTime型変換
                         final formatter = DateFormat('yyyy年MM月dd日 HH:mm');
-                        final formatted = formatter.format(flutterIssues![index].createdAt);
+                        final formattedCreatedAt = formatter.format(flutterIssues![index].createdAt);
+                        final formattedUpdatedAt = formatter.format(flutterIssues![index].updatedAt);
 
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
@@ -89,51 +90,74 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                               padding: const EdgeInsets.symmetric(horizontal: 8.0),
                               child: SizedBox(
                                 height: 200,
+
+                                /// カード内3分割 [[number,commentCount],title],[description],[createdAt]
                                 child: Column(
                                   children: [
+                                    /// [[number,commentCount],title]部分
                                     Expanded(
                                       flex: 3,
                                       child: Column(
                                         children: [
+                                          /// [number,commentCount]部分
                                           Expanded(
                                             flex: 1,
                                             child: Row(
                                               children: [
-                                                Text('No. ${flutterIssues![index].number}'),
-                                                const SizedBox(width: 20),
+                                                /// number部分
+                                                Text(
+                                                  'No. ${flutterIssues![index].number}',
+                                                  style: const TextStyle(fontSize: 12),
+                                                ),
+                                                const SizedBox(width: 15),
+
+                                                /// commentCount部分
                                                 Row(
                                                   children: [
-                                                    const Icon(Icons.comment),
-                                                    Text(flutterIssues![index].commentCount.toString()),
+                                                    const Icon(
+                                                      Icons.comment,
+                                                      size: 15,
+                                                    ),
+                                                    const SizedBox(width: 3),
+                                                    Text(
+                                                      flutterIssues![index].commentCount.toString(),
+                                                      style: const TextStyle(fontSize: 12),
+                                                    ),
                                                   ],
                                                 )
                                               ],
                                             ),
                                           ),
+
+                                          /// title部分
                                           Expanded(
                                             flex: 5,
-                                            child: Padding(
-                                              padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                              child: Row(
-                                                children: [
-                                                  const Icon(
-                                                    Icons.info_outline,
-                                                    color: Colors.green,
-                                                  ),
-                                                  const SizedBox(width: 10),
-                                                  Expanded(
-                                                    child: Text(
-                                                      flutterIssues![index].title,
-                                                      style: const TextStyle(fontWeight: FontWeight.bold),
+                                            child: Row(
+                                              children: [
+                                                const Icon(
+                                                  Icons.info_outline,
+                                                  color: Colors.green,
+                                                ),
+                                                const SizedBox(width: 10),
+                                                Expanded(
+                                                  child: Text(
+                                                    flutterIssues![index].title,
+                                                    maxLines: 3,
+                                                    overflow: TextOverflow.visible,
+                                                    style: const TextStyle(
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: 12,
                                                     ),
                                                   ),
-                                                ],
-                                              ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
+
+                                    /// description部分
                                     Expanded(
                                       flex: 3,
                                       child: Container(
@@ -142,6 +166,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                         child: Text(flutterIssues![index].description ?? 'no description'),
                                       ),
                                     ),
+
+                                    /// createdAt部分
                                     Expanded(
                                       flex: 2,
                                       child: Padding(
@@ -155,15 +181,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  '作成日時: $formatted',
-                                                  // '${flutterIssues![index].createdAt.year}年${flutterIssues![index].createdAt.month}月${flutterIssues![index].createdAt.day}日 ${flutterIssues![index].createdAt.hour}:${flutterIssues![index].createdAt.minute}',
-                                                  // '作成日時: ${flutterIssues![index].createdAt}',
+                                                  '作成日時: $formattedCreatedAt',
                                                   style: const TextStyle(fontSize: 12),
                                                 ),
-                                                Text(
-                                                  '更新日時: $formatted',
-                                                  style: const TextStyle(fontSize: 12),
-                                                ),
+                                                formattedCreatedAt != formattedUpdatedAt
+                                                    ? Text(
+                                                        '更新日時: $formattedUpdatedAt',
+                                                        style: const TextStyle(fontSize: 12),
+                                                      )
+                                                    : const SizedBox(),
                                               ],
                                             ),
                                             OutlinedButton(
