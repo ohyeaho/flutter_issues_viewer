@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_issues_viewer/pages/widget/home_page.dart';
-import 'package:logger/logger.dart';
-
-final logger = Logger();
+import 'package:flutter_issues_viewer/pages/home_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,5 +19,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-// final homePageProvider = StateNotifierProvider<HomePageStateNotifier, HomePageState>((ref) => HomePageStateNotifier());

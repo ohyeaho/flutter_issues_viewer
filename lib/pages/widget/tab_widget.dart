@@ -1,58 +1,175 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_issues_viewer/models/api/github_api.dart';
-import 'package:flutter_issues_viewer/pages/widget/issue_list.dart';
-import 'package:flutter_issues_viewer/state/issues_state.dart';
-import 'package:flutter_state_notifier/flutter_state_notifier.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_issues_viewer/models/github_api.dart';
+import 'package:flutter_issues_viewer/models/github_data.dart';
+import 'package:intl/intl.dart';
 
 class TabWidget extends StatelessWidget {
-  TabWidget({required String label}) : _label = label;
+  List<GithubData>? flutterIssues;
+  final String? label;
 
-  final String _label;
+  TabWidget({Key? key, this.label}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    print('TabWidgetビルド');
-    // print(flutterIssues![0]);
-    return NoLoadWhenChangeTab(
-      child: StateNotifierProvider<IssuesStateNotifier, IssuesState>(
-          create: (context) => IssuesStateNotifier(GithubApi(label: _label)),
-          builder: (context, _) {
-            final state = context.select((IssuesState value) => value);
-            return IssueList(
-              issuesDataList: state.issuesDataList!,
-              isLoading: state.isLoading,
-              init: state.init,
-              pullRefresh: () async => _pullRefresh(context),
+    return FutureBuilder(
+        future: GithubApi().getGithubApi(state: 'all', label: label, sort: 'created', direction: 'desc'),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            flutterIssues = snapshot.data;
+            return RefreshIndicator(
+              onRefresh: () async {
+                flutterIssues = snapshot.data;
+                print('refresh');
+              },
+              child: ListView.builder(
+                  itemCount: flutterIssues!.length,
+                  itemBuilder: (context, index) {
+                    //DateTime型変換
+                    final formatter = DateFormat('yyyy年MM月dd日 HH:mm');
+                    final formattedCreatedAt = formatter.format(flutterIssues![index].createdAt);
+                    final formattedUpdatedAt = formatter.format(flutterIssues![index].updatedAt);
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+                      child: Card(
+                        elevation: 3,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: SizedBox(
+                            height: 200,
+
+                            /// カード内3分割 [[number,commentCount],title],[description],[createdAt]
+                            child: Column(
+                              children: [
+                                topAndTitleCard(index),
+                                descriptionCard(index),
+                                dateCard(formattedCreatedAt, formattedUpdatedAt),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
             );
-          }),
+          } else {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        });
+  }
+
+  Expanded topAndTitleCard(int index) {
+    return Expanded(
+      flex: 3,
+      child: Column(
+        children: [
+          topCard(index),
+          titleCard(index),
+        ],
+      ),
     );
   }
 
-  Future<void> _pullRefresh(BuildContext context) async {
-    await context.read<IssuesStateNotifier>().refreshAndFetch();
+  Expanded topCard(int index) {
+    return Expanded(
+      flex: 1,
+      child: Row(
+        children: [
+          Text(
+            'No. ${flutterIssues![index].number}',
+            style: const TextStyle(fontSize: 12),
+          ),
+          const SizedBox(width: 15),
+          Row(
+            children: [
+              const Icon(
+                Icons.comment,
+                size: 15,
+              ),
+              const SizedBox(width: 3),
+              Text(
+                flutterIssues![index].commentCount.toString(),
+                style: const TextStyle(fontSize: 12),
+              ),
+            ],
+          )
+        ],
+      ),
+    );
   }
-}
 
-// タブ切り替え時のリロードを防ぐ
-class NoLoadWhenChangeTab extends StatefulWidget {
-  NoLoadWhenChangeTab({Key? key, this.child}) : super(key: key);
-  final Widget? child;
-  final NoLoadWhenChangeTabState _state = NoLoadWhenChangeTabState();
-
-  @override
-  State<StatefulWidget> createState() {
-    return _state;
+  Expanded titleCard(int index) {
+    return Expanded(
+      flex: 5,
+      child: Row(
+        children: [
+          const Icon(
+            Icons.info_outline,
+            color: Colors.green,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              flutterIssues![index].title,
+              maxLines: 3,
+              overflow: TextOverflow.visible,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
-}
 
-class NoLoadWhenChangeTabState extends State<NoLoadWhenChangeTab> with AutomaticKeepAliveClientMixin {
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    return widget.child!;
+  Expanded descriptionCard(int index) {
+    return Expanded(
+      flex: 3,
+      child: Container(
+        width: double.infinity,
+        color: Colors.blue.withOpacity(0.2),
+        child: Text(flutterIssues![index].description ?? 'no description'),
+      ),
+    );
   }
 
-  @override
-  bool get wantKeepAlive => true;
+  Expanded dateCard(String formattedCreatedAt, String formattedUpdatedAt) {
+    return Expanded(
+      flex: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(5.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '作成日時: $formattedCreatedAt',
+                  style: const TextStyle(fontSize: 12),
+                ),
+                formattedCreatedAt != formattedUpdatedAt
+                    ? Text(
+                        '更新日時: $formattedUpdatedAt',
+                        style: const TextStyle(fontSize: 12),
+                      )
+                    : const SizedBox(),
+              ],
+            ),
+            OutlinedButton(
+              onPressed: () {},
+              child: const Text('View full issue'),
+              style: OutlinedButton.styleFrom(primary: Colors.grey),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
