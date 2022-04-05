@@ -1,30 +1,93 @@
 import 'package:flutter/material.dart';
 
+enum SingingCharacter { lafayette, jefferson }
+
 class SortButton extends StatelessWidget {
-  const SortButton({
-    Key? key,
-  }) : super(key: key);
+  const SortButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    SingingCharacter? _character = SingingCharacter.lafayette;
     return Align(
       alignment: Alignment.centerRight,
       child: IconButton(
-        onPressed: () {
+        onPressed: () async {
           showDialog<void>(
               builder: (context) => Padding(
                     padding: const EdgeInsets.all(10),
                     child: AlertDialog(
-                      content: SingleChildScrollView(
-                        child: ListBody(
-                          children: const [
-                            Text('1年以上更新のないIssueを除外する'),
-                            Text('closed状態のIssueを除外する'),
-                            Text('作成日時の新しい順'),
-                            Text('最終更新日時の古い順'),
-                            Text('コメント数の多い順'),
-                          ],
-                        ),
+                      content: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: Checkbox(
+                                  value: true,
+                                  onChanged: (bool? value) {},
+                                ),
+                              ),
+                              const Spacer(),
+                              const Expanded(
+                                flex: 9,
+                                child: Text('1年以上更新のないIssueを除外する'),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: Checkbox(
+                                  value: false,
+                                  onChanged: (bool? value) {},
+                                ),
+                              ),
+                              const Spacer(),
+                              const Expanded(
+                                flex: 9,
+                                child: Text('closed状態のIssueを除外する'),
+                              ),
+                            ],
+                          ),
+                          ListTile(
+                            title: const Text('作成日時の新しい順'),
+                            leading: Radio<SingingCharacter>(
+                              value: SingingCharacter.lafayette,
+                              groupValue: _character,
+                              onChanged: (SingingCharacter? value) {
+                                // setState(() {
+                                //   _character = value;
+                                // });
+                              },
+                            ),
+                          ),
+                          ListTile(
+                            title: const Text('最終更新日時の古い順'),
+                            leading: Radio<SingingCharacter>(
+                              value: SingingCharacter.jefferson,
+                              groupValue: _character,
+                              onChanged: (SingingCharacter? value) {
+                                // setState(() {
+                                //   _character = value;
+                                // });
+                              },
+                            ),
+                          ),
+                          ListTile(
+                            title: const Text('コメント数の多い順'),
+                            leading: Radio<SingingCharacter>(
+                              value: SingingCharacter.jefferson,
+                              groupValue: _character,
+                              onChanged: (SingingCharacter? value) {
+                                // setState(() {
+                                //   _character = value;
+                                // });
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                       actions: <Widget>[
                         Center(
@@ -42,7 +105,9 @@ class SortButton extends StatelessWidget {
                                   onPrimary: Colors.black,
                                   shape: const StadiumBorder(),
                                 ),
-                                onPressed: () => Navigator.pop(context),
+                                onPressed: () async {
+                                  Navigator.pop(context);
+                                },
                               ),
                             ),
                           ),
@@ -56,4 +121,8 @@ class SortButton extends StatelessWidget {
       ),
     );
   }
+
+  // Future<void> _filterState(BuildContext context) async {
+  //   await context.read<IssuesStateNotifier>().filterState();
+  // }
 }

@@ -30,10 +30,7 @@ class IssueCardTitle extends StatelessWidget {
               title!,
               maxLines: 3,
               overflow: TextOverflow.visible,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
         ],

@@ -6,7 +6,7 @@ import 'package:flutter_issues_viewer/state/issues_state.dart';
 import 'package:provider/provider.dart';
 
 class IssueList extends StatelessWidget {
-  const IssueList({
+  IssueList({
     required List<GithubData> issuesDataList,
     required bool isLoading,
     required bool init,
@@ -33,7 +33,10 @@ class IssueList extends StatelessWidget {
       return Center(
         child: TextButton(
           onPressed: () async => _pullRefresh(),
-          child: const Text('issueはありません。\n再読み込みはタップ！'),
+          child: const Text(
+            'issueが見つかりませんでした。\n再読込みはタップ！',
+            textAlign: TextAlign.center,
+          ),
         ),
       );
     }
