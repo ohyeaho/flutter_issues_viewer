@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class IssueCardDate extends StatelessWidget {
-  const IssueCardDate();
+  const IssueCardDate({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +32,7 @@ class IssueCardDate extends StatelessWidget {
                   '作成日時: $createdAt',
                   style: const TextStyle(fontSize: 12),
                 ),
+                // 更新されているときのみ更新日時を表示
                 createdAt != updatedAt
                     ? Text(
                         '更新日時: $updatedAt',

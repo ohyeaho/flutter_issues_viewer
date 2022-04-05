@@ -12,15 +12,13 @@ class TabWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('TabWidgetビルド');
-    // print(flutterIssues![0]);
     return NoLoadWhenChangeTab(
       child: StateNotifierProvider<IssuesStateNotifier, IssuesState>(
           create: (context) => IssuesStateNotifier(GithubApi(label: _label)),
           builder: (context, _) {
             final state = context.select((IssuesState value) => value);
             return IssueList(
-              issuesDataList: state.issuesDataList!,
+              issuesDataList: state.issuesDataList ?? [],
               isLoading: state.isLoading,
               init: state.init,
               pullRefresh: () async => _pullRefresh(context),
@@ -36,13 +34,12 @@ class TabWidget extends StatelessWidget {
 
 // タブ切り替え時のリロードを防ぐ
 class NoLoadWhenChangeTab extends StatefulWidget {
-  NoLoadWhenChangeTab({Key? key, this.child}) : super(key: key);
+  const NoLoadWhenChangeTab({Key? key, this.child}) : super(key: key);
   final Widget? child;
-  final NoLoadWhenChangeTabState _state = NoLoadWhenChangeTabState();
 
   @override
   State<StatefulWidget> createState() {
-    return _state;
+    return NoLoadWhenChangeTabState();
   }
 }
 
