@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_issues_viewer/pages/widget/issue_card/IssueCardTopAndTitle.dart';
 import 'package:flutter_issues_viewer/pages/widget/issue_card/date.dart';
 import 'package:flutter_issues_viewer/pages/widget/issue_card/description.dart';
+import 'package:flutter_issues_viewer/pages/widget/issue_card/top_and_title.dart';
 
 class IssueCard extends StatelessWidget {
   const IssueCard({Key? key}) : super(key: key);
