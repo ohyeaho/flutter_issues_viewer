@@ -8,7 +8,7 @@ class GithubApi {
   Future<List<GithubData>?> getGithubApi({String? state, String? label, String? sort, String? direction}) async {
     final DateTime oneYearsAgo = DateTime.now().add(const Duration(days: -365));
 
-    String urlOriginal = 'https://api.github.com/repos/flutter/flutter/issues';
+    String originalUrl = 'https://api.github.com/repos/flutter/flutter/issues';
     // String state = 'all';
     // String _label = label ?? '';
     // String sort = 'created';
@@ -17,7 +17,7 @@ class GithubApi {
     // String since = '${DateFormat('yyyy-MM-dd').format(oneYearsAgo)}T${DateFormat('HH:mm:ss').format(oneYearsAgo)}Z';
     // int page = ;
     String url =
-        '$urlOriginal?state=$state${label!.isNotEmpty ? '&labels=$label' : ''}&sort=$sort&direction=$direction${since.isNotEmpty ? '&since=$since' : ''}&per_page=20';
+        '$originalUrl?state=$state${label!.isNotEmpty ? '&labels=$label' : ''}&sort=$sort&direction=$direction${since.isNotEmpty ? '&since=$since' : ''}&per_page=20';
     try {
       var result = await get(Uri.parse(url), headers: {'Accept': 'application/vnd.github.v3+json'});
       if (result.statusCode == 200) {
